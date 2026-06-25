@@ -295,7 +295,7 @@ function exportToExcel(){
   }catch(e){alert('Error al exportar: '+e.message);}
 }
 
-fetch('https://raw.githubusercontent.com/marianadamarin12-crypto/RADICADOS_DRTA/main/Drta.csv?nocache='+Date.now())
+fetch('https://api.github.com/repos/marianadamarin12-crypto/RADICADOS_DRTA/contents/Drta.csv',{headers:{'Accept':'application/vnd.github.v3.raw'}})
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
     return r.text();
@@ -313,7 +313,7 @@ fetch('https://raw.githubusercontent.com/marianadamarin12-crypto/RADICADOS_DRTA/
     document.getElementById('main-content').innerHTML=
       '<div class="loading" style="color:#991B1B">⚠ No se pudo cargar el CSV.<br>'
       +'<small style="color:#9CA3AF">'+err.message+'<br>'
-      +'URL: https://raw.githubusercontent.com/marianadamarin12-crypto/RADICADOS_DRTA/main/Drta.csv</small></div>';
+      +'URL: https://api.github.com/repos/marianadamarin12-crypto/RADICADOS_DRTA/contents/Drta.csv</small></div>';
   });
 </script>
 </body>
