@@ -184,15 +184,15 @@ function splitLine(line){
   return result;
 }
 
-function getVigencia(rad){
-  var m=rad.match(/(20\d\d)/);
+function getVigencia(radicado){
+  var m=radicado.match(/(20\d{2})/);
   return m?m[1]:'OTRO';
 }
 
 var VIG={
-  '2024':{bg:'#DCFCE7',color:'#166534',icon:'✅',label:'CUMPLIDO'},
-  '2025':{bg:'#FEE2E2',color:'#991B1B',icon:'🔴',label:'ALERTA — AÑO VENCIDO'},
-  '2026':{bg:'#FEF9C3',color:'#854D0E',icon:'🟡',label:'PENDIENTE'}
+  '2024':{bg:'#DCFCE7',color:'#166534',icon:'✅',label:'CUMPLIDO',bc:'rgba(52,211,153,.5)',kc:'#6EE7B7'},
+  '2025':{bg:'#FEE2E2',color:'#991B1B',icon:'🔴',label:'ALERTA — AÑO VENCIDO',bc:'rgba(255,100,100,.5)',kc:'#FCA5A5'},
+  '2026':{bg:'#FEF9C3',color:'#854D0E',icon:'🟡',label:'PENDIENTE',bc:'rgba(252,211,77,.6)',kc:'#FCD34D'}
 };
 var ORDER=['2024','2025','2026'];
 
@@ -295,7 +295,7 @@ function exportToExcel(){
   }catch(e){alert('Error al exportar: '+e.message);}
 }
 
-fetch('https://api.github.com/repos/marianadamarin12-crypto/RADICADOS_DRTA/contents/Drta.csv',{headers:{'Accept':'application/vnd.github.v3.raw'}})
+fetch('Drta.csv?v='+Date.now())
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
     return r.text();
@@ -304,16 +304,16 @@ fetch('https://api.github.com/repos/marianadamarin12-crypto/RADICADOS_DRTA/conte
     var rows=parseCSV(text);
     if(rows.length===0){
       document.getElementById('main-content').innerHTML=
-        '<div class="loading" style="color:#991B1B">⚠ El CSV está vacío o no tiene el formato esperado.</div>';
+        '<div class="loading" style="color:#991B1B">⚠ Drta.csv está vacío o no tiene el formato esperado.</div>';
       return;
     }
     render(rows);
   })
   .catch(function(err){
     document.getElementById('main-content').innerHTML=
-      '<div class="loading" style="color:#991B1B">⚠ No se pudo cargar el CSV.<br>'
+      '<div class="loading" style="color:#991B1B">⚠ No se pudo cargar Drta.csv.<br>'
       +'<small style="color:#9CA3AF">'+err.message+'<br>'
-      +'URL: https://api.github.com/repos/marianadamarin12-crypto/RADICADOS_DRTA/contents/Drta.csv</small></div>';
+      +'Verifica que Drta.csv esté en la raíz del repositorio junto a index.html.</small></div>';
   });
 </script>
 </body>
