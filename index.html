@@ -146,26 +146,26 @@ function showDenied(s){
   document.getElementById('denied-overlay').style.display = 'flex';
 }
 document.getElementById('denied-overlay').addEventListener('click',function(e){
-  if(e.target === this) this.style.display = 'none';
+  if(e.target===this) this.style.display='none';
 });
 
 function parseCSV(text){
-  text = text.replace(/^﻿/,'').replace(/
+  text=text.replace(/^﻿/,'').replace(/
 /g,'
 ').replace(/
 /g,'
 ');
-  var lines = text.trim().split('
+  var lines=text.trim().split('
 ');
-  if(lines.length < 2) return [];
-  var headers = splitLine(lines[0]);
-  var rows = [];
-  for(var i = 1; i < lines.length; i++){
+  if(lines.length<2) return [];
+  var headers=splitLine(lines[0]);
+  var rows=[];
+  for(var i=1;i<lines.length;i++){
     if(!lines[i].trim()) continue;
-    var cols = splitLine(lines[i]);
-    var row = {};
+    var cols=splitLine(lines[i]);
+    var row={};
     headers.forEach(function(h,idx){
-      row[h.replace(/^"|"$/g,'').trim()] = (cols[idx]||'').replace(/^"|"$/g,'').trim();
+      row[h.replace(/^"|"$/g,'').trim()]=(cols[idx]||'').replace(/^"|"$/g,'').trim();
     });
     rows.push(row);
   }
@@ -173,100 +173,100 @@ function parseCSV(text){
 }
 
 function splitLine(line){
-  var result=[], cur='', inQ=false;
+  var result=[],cur='',inQ=false;
   for(var i=0;i<line.length;i++){
     var c=line[i];
-    if(c==='"'){ inQ=!inQ; }
-    else if(c===','&&!inQ){ result.push(cur); cur=''; }
-    else{ cur+=c; }
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=c;}
   }
   result.push(cur);
   return result;
 }
 
-function getVigencia(radicado){
-  var m = radicado.match(/(20\d{2})/);
-  return m ? m[1] : 'OTRO';
+function getVigencia(rad){
+  var m=rad.match(/(20\d\d)/);
+  return m?m[1]:'OTRO';
 }
 
-var VIG = {
-  '2024':{ bg:'#DCFCE7', color:'#166534', icon:'✅', label:'CUMPLIDO',             bc:'rgba(52,211,153,.5)',  kc:'#6EE7B7' },
-  '2025':{ bg:'#FEE2E2', color:'#991B1B', icon:'🔴', label:'ALERTA — AÑO VENCIDO', bc:'rgba(255,100,100,.5)', kc:'#FCA5A5' },
-  '2026':{ bg:'#FEF9C3', color:'#854D0E', icon:'🟡', label:'PENDIENTE',             bc:'rgba(252,211,77,.6)',  kc:'#FCD34D' }
+var VIG={
+  '2024':{bg:'#DCFCE7',color:'#166534',icon:'✅',label:'CUMPLIDO'},
+  '2025':{bg:'#FEE2E2',color:'#991B1B',icon:'🔴',label:'ALERTA — AÑO VENCIDO'},
+  '2026':{bg:'#FEF9C3',color:'#854D0E',icon:'🟡',label:'PENDIENTE'}
 };
-var ORDER = ['2024','2025','2026'];
+var ORDER=['2024','2025','2026'];
 
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function render(rows){
-  var groups = {};
-  ORDER.forEach(function(y){ groups[y]=[]; });
+  var groups={};
+  ORDER.forEach(function(y){groups[y]=[];});
   rows.forEach(function(r){
-    var keys = Object.keys(r);
-    var rad    = r['ENTRADA / RADICADO'] || r['ENTRADA/RADICADO'] || r[keys[0]] || '';
-    var resp   = r['ÁREA RESPONSABLE']   || r['AREA RESPONSABLE'] || r[keys[1]] || '';
-    var asunto = r['ASUNTO']             || r[keys[2]] || '';
-    var vig = getVigencia(rad);
+    var keys=Object.keys(r);
+    var rad=r['ENTRADA / RADICADO']||r['ENTRADA/RADICADO']||r[keys[0]]||'';
+    var resp=r['ÁREA RESPONSABLE']||r['AREA RESPONSABLE']||r[keys[1]]||'';
+    var asunto=r['ASUNTO']||r[keys[2]]||'';
+    var vig=getVigencia(rad);
     if(!groups[vig]) groups[vig]=[];
-    groups[vig].push({rad:rad.trim(), resp:resp.trim(), asunto:asunto.trim()});
+    groups[vig].push({rad:rad.trim(),resp:resp.trim(),asunto:asunto.trim()});
   });
 
-  document.getElementById('kpi-total').textContent = rows.length;
+  document.getElementById('kpi-total').textContent=rows.length;
   ORDER.forEach(function(y){
-    var n = (groups[y]||[]).length;
-    var cfg = VIG[y];
-    document.getElementById('kpi-val-'+y).textContent = n;
-    document.getElementById('kpi-badge-'+y).textContent =
-      (n===0 && y==='2024') ? 'CUMPLIDO' : (n===0 ? 'SIN PEND.' : '⚠ '+cfg.label.split(' ')[0]);
+    var n=(groups[y]||[]).length;
+    var cfg=VIG[y];
+    document.getElementById('kpi-val-'+y).textContent=n;
+    document.getElementById('kpi-badge-'+y).textContent=
+      (n===0&&y==='2024')?'CUMPLIDO':(n===0?'SIN PEND.':'⚠ '+cfg.label.split(' ')[0]);
   });
 
-  var html = '';
+  var html='';
   ORDER.forEach(function(y){
-    var items = groups[y] || [];
-    var n = items.length;
-    var cfg = VIG[y];
-    var statusLabel = (n===0 && y==='2024') ? 'CUMPLIDO' : (n===0 ? 'SIN PENDIENTES' : cfg.label);
-    var iconLabel   = (n===0 && y==='2024') ? '✅' : cfg.icon;
-    html += '<div id="sec-'+y+'" class="vig-label" style="background:'+cfg.bg+';color:'+cfg.color+'">';
-    html += iconLabel+' '+y+' — '+n+' pendiente'+(n!==1?'s':'')+' · '+statusLabel+'</div>';
-    html += '<div class="table-wrap"><table>';
-    html += '<thead><tr><th>#</th><th>Entrada / Radicado</th><th>Área responsable</th><th>Asunto</th></tr></thead><tbody>';
+    var items=groups[y]||[];
+    var n=items.length;
+    var cfg=VIG[y];
+    var statusLabel=(n===0&&y==='2024')?'CUMPLIDO':(n===0?'SIN PENDIENTES':cfg.label);
+    var iconLabel=(n===0&&y==='2024')?'✅':cfg.icon;
+    html+='<div id="sec-'+y+'" class="vig-label" style="background:'+cfg.bg+';color:'+cfg.color+'">';
+    html+=iconLabel+' '+y+' — '+n+' pendiente'+(n!==1?'s':'')+' · '+statusLabel+'</div>';
+    html+='<div class="table-wrap"><table>';
+    html+='<thead><tr><th>#</th><th>Entrada / Radicado</th><th>Área responsable</th><th>Asunto</th></tr></thead><tbody>';
     if(n===0){
-      html += '<tr><td colspan="4" style="text-align:center;color:#6B7280;padding:1.5rem;font-style:italic">';
-      html += (y==='2024' ? '✅ Sin radicados pendientes en esta vigencia' : 'Sin radicados pendientes');
-      html += '</td></tr>';
-    } else {
+      html+='<tr><td colspan="4" style="text-align:center;color:#6B7280;padding:1.5rem;font-style:italic">';
+      html+=(y==='2024'?'✅ Sin radicados pendientes en esta vigencia':'Sin radicados pendientes');
+      html+='</td></tr>';
+    }else{
       items.forEach(function(item,idx){
-        html += '<tr><td>'+(String(idx+1).padStart(2,'0'))+'</td>';
-        html += '<td class="rad">'+esc(item.rad)+'</td>';
-        html += '<td class="resp">'+esc(item.resp)+'</td>';
-        html += '<td class="asunto">'+esc(item.asunto)+'</td></tr>';
+        html+='<tr><td>'+(String(idx+1).padStart(2,'0'))+'</td>';
+        html+='<td class="rad">'+esc(item.rad)+'</td>';
+        html+='<td class="resp">'+esc(item.resp)+'</td>';
+        html+='<td class="asunto">'+esc(item.asunto)+'</td></tr>';
       });
     }
-    html += '</tbody></table></div>';
+    html+='</tbody></table></div>';
   });
-  document.getElementById('main-content').innerHTML = html;
+  document.getElementById('main-content').innerHTML=html;
 }
 
 function exportToExcel(){
   try{
-    var tables = document.querySelectorAll('table');
-    var labels = document.querySelectorAll('.vig-label');
-    var fecha  = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
-    var st     = 'font-family:Arial;font-size:10pt;color:#000;border:1px solid #000;padding:4px 6px;';
-    var html   = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>';
-    html += '<table><tr><td colspan="5" style="font-family:Arial;font-size:12pt;font-weight:bold;padding:4px;">Dirección Red Troncal - Radicados Pendientes</td></tr>';
-    html += '<tr><td colspan="5" style="font-family:Arial;font-size:10pt;padding:2px 4px;">Generado: '+fecha+'</td></tr>';
-    html += '<tr><td colspan="5" style="padding:3px;"></td></tr></table>';
-    html += '<table style="border-collapse:collapse;width:100%;"><tr>';
-    html += '<th style="'+st+'font-weight:bold;text-align:center;">#</th>';
-    html += '<th style="'+st+'font-weight:bold;">ENTRADA / RADICADO</th>';
-    html += '<th style="'+st+'font-weight:bold;">ÁREA RESPONSABLE</th>';
-    html += '<th style="'+st+'font-weight:bold;">ASUNTO</th>';
-    html += '<th style="'+st+'font-weight:bold;text-align:center;">VIGENCIA</th></tr>';
-    var counter = 1;
+    var tables=document.querySelectorAll('table');
+    var labels=document.querySelectorAll('.vig-label');
+    var fecha=new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+    var st='font-family:Arial;font-size:10pt;color:#000;border:1px solid #000;padding:4px 6px;';
+    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>';
+    html+='<table><tr><td colspan="5" style="font-family:Arial;font-size:12pt;font-weight:bold;padding:4px;">Dirección Red Troncal - Radicados Pendientes</td></tr>';
+    html+='<tr><td colspan="5" style="font-family:Arial;font-size:10pt;padding:2px 4px;">Generado: '+fecha+'</td></tr>';
+    html+='<tr><td colspan="5" style="padding:3px;"></td></tr></table>';
+    html+='<table style="border-collapse:collapse;width:100%;"><tr>';
+    html+='<th style="'+st+'font-weight:bold;text-align:center;">#</th>';
+    html+='<th style="'+st+'font-weight:bold;">ENTRADA / RADICADO</th>';
+    html+='<th style="'+st+'font-weight:bold;">ÁREA RESPONSABLE</th>';
+    html+='<th style="'+st+'font-weight:bold;">ASUNTO</th>';
+    html+='<th style="'+st+'font-weight:bold;text-align:center;">VIGENCIA</th></tr>';
+    var counter=1;
     tables.forEach(function(table,i){
-      var label = labels[i] ? labels[i].textContent.trim() : '';
+      var label=labels[i]?labels[i].textContent.trim():'';
       if(label.indexOf('0 pendientes')!==-1||label.indexOf('SIN PENDIENTES')!==-1) return;
       var yr='—';
       if(label.indexOf('2024')!==-1) yr='2024';
@@ -295,25 +295,25 @@ function exportToExcel(){
   }catch(e){alert('Error al exportar: '+e.message);}
 }
 
-fetch('Drta.csv?v='+Date.now())
+fetch('https://raw.githubusercontent.com/marianadamarin12-crypto/RADICADOS_DRTA/main/Drta.csv?nocache='+Date.now())
   .then(function(r){
     if(!r.ok) throw new Error('HTTP '+r.status);
     return r.text();
   })
   .then(function(text){
-    var rows = parseCSV(text);
+    var rows=parseCSV(text);
     if(rows.length===0){
       document.getElementById('main-content').innerHTML=
-        '<div class="loading" style="color:#991B1B">⚠ Drta.csv está vacío o no tiene el formato esperado.</div>';
+        '<div class="loading" style="color:#991B1B">⚠ El CSV está vacío o no tiene el formato esperado.</div>';
       return;
     }
     render(rows);
   })
   .catch(function(err){
     document.getElementById('main-content').innerHTML=
-      '<div class="loading" style="color:#991B1B">⚠ No se pudo cargar Drta.csv.<br>'
+      '<div class="loading" style="color:#991B1B">⚠ No se pudo cargar el CSV.<br>'
       +'<small style="color:#9CA3AF">'+err.message+'<br>'
-      +'Verifica que Drta.csv esté en la raíz del repositorio junto a index.html.</small></div>';
+      +'URL: https://raw.githubusercontent.com/marianadamarin12-crypto/RADICADOS_DRTA/main/Drta.csv</small></div>';
   });
 </script>
 </body>
