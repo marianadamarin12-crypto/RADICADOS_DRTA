@@ -318,3 +318,12 @@ fetch('Drta.csv?v='+Date.now())
 </script>
 </body>
 </html>
+fetch("Drta.csv?" + Date.now())
+.then(r => {
+    console.log("Estado:", r.status);
+    return r.text();
+})
+.then(text => {
+    console.log(text.substring(0,200));
+})
+.catch(e => console.error(e));
